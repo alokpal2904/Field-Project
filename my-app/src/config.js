@@ -4,11 +4,11 @@
 const API_CONFIG = {
   // Base URL for API requests
   // In production, this would be loaded from environment variables
-  BASE_URL: process.env.REACT_APP_API_URL || 'https://your-backend-api.com/api',
+  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:5000/api',
   
   // API endpoints
   ENDPOINTS: {
-    RESERVE_BOOK: '/reserve-book',
+    RESERVE_BOOK: '/bookings',
     AVAILABLE_BOOKS: '/available-books',
   },
   

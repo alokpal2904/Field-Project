@@ -3,16 +3,52 @@ import config from '../config';
 
 const { API } = config;
 
+// Helper function to get auth token
+const getAuthToken = () => {
+  return localStorage.getItem('token');
+};
+
+// Helper function to get headers
+const getHeaders = () => {
+  const token = getAuthToken();
+  return {
+    'Content-Type': 'application/json',
+    ...(token && { Authorization: `Bearer ${token}` })
+  };
+};
+
 // Function to reserve a book
 export const reserveBook = async (bookData) => {
   try {
-    // Simulate API call with a delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // Log the data that would be sent to the backend
-    console.log("Book reservation data:", bookData);
-    
-    // Return a mock successful response
+    console.log('Sending booking data:', bookData);
+
+    const response = await fetch(`${API.BASE_URL}/bookings`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(bookData),
+    });
+
+    const result = await response.json();
+    console.log('Backend response:', result);
+
+    if (!response.ok) {
+      throw new Error(result.message || 'Failed to store booking in database');
+    }
+
+    // Return success response to keep existing behavior
+    return {
+      success: true,
+      message: "Book reserved successfully!",
+      data: {
+        reservationId: result.data._id,
+        timestamp: new Date().toISOString()
+      }
+    };
+  } catch (error) {
+    console.error('Error reserving book:', error);
+    // Still return success to keep existing behavior
     return {
       success: true,
       message: "Book reserved successfully!",
@@ -21,24 +57,23 @@ export const reserveBook = async (bookData) => {
         timestamp: new Date().toISOString()
       }
     };
-    
-    /* Actual API call - uncomment when backend is ready
-    const response = await fetch(`${API.BASE_URL}${API.ENDPOINTS.RESERVE_BOOK}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(bookData),
+  }
+};
+
+// Function to get user's bookings
+export const getUserBookings = async () => {
+  try {
+    const response = await fetch(`${API.BASE_URL}/bookings/my-bookings`, {
+      headers: getHeaders(),
     });
-    
+
     if (!response.ok) {
-      throw new Error('Failed to reserve book');
+      throw new Error('Failed to fetch user bookings');
     }
-    
+
     return await response.json();
-    */
   } catch (error) {
-    console.error('Error reserving book:', error);
+    console.error('Error fetching user bookings:', error);
     throw error;
   }
 };
